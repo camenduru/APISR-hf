@@ -118,4 +118,4 @@ if __name__ == '__main__':
 
         run_btn.click(inference, inputs=[input_image, model_name], outputs=[output_image])
 
-    block.launch()
+    block.launch(share=True)
