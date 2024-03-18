@@ -4,6 +4,7 @@
 import argparse
 import os, sys, cv2, shutil, warnings
 import torch
+import gradio as gr
 from torchvision.transforms import ToTensor
 from torchvision.utils import save_image
 warnings.simplefilter("default")
@@ -38,6 +39,12 @@ def super_resolve_img(generator, input_path, output_path=None, weight_dtype=torc
             img_lr = img_lr[:4*(h//4),:,:]
         if w % 4 != 0:
             img_lr = img_lr[:,:4*(w//4),:]
+                
+    # Check if the size is out of the boundary
+    h, w, c = img_lr.shape
+    if h*w > 720*1280:
+        raise gr.Error("The input image size is too large. The largest area we support is 720x1280=921600 pixel!")
+    
 
     # Transform to tensor
     img_lr = cv2.cvtColor(img_lr, cv2.COLOR_BGR2RGB)
@@ -54,7 +61,7 @@ def super_resolve_img(generator, input_path, output_path=None, weight_dtype=torc
         if output_path is not None:
             save_image(super_resolved_img, output_path)
 
-    # Empty the cache everytime you finish processing one image
+    # Empty the cache every time you finish processing one image
     torch.cuda.empty_cache() 
     
     return super_resolved_img
@@ -71,7 +78,7 @@ if __name__ == "__main__":
     parser.add_argument('--scale', type = int, default = 4, help="Up scaler factor")
     parser.add_argument('--weight_path', type = str, default = 'pretrained/4x_APISR_GRL_GAN_generator.pth', help="Weight path directory, usually under saved_models folder")
     parser.add_argument('--store_dir', type = str, default = 'sample_outputs', help="The folder to store the super-resolved images")
-    parser.add_argument('--float16_inference', type = bool, default = False, help="The folder to store the super-resolved images")      # Currently, this is only supported in RRDB, there is some bug with GRL model
+    parser.add_argument('--float16_inference', type = bool, default = False, help="Float16 inference, only useful in RRDB now")      # Currently, this is only supported in RRDB, there is some bug with GRL model
     args = parser.parse_args()
     
     # Sample Command

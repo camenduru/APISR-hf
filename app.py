@@ -1,5 +1,6 @@
 import os, sys
 import cv2
+import time
 import gradio as gr
 import torch
 import numpy as np
@@ -47,15 +48,16 @@ def inference(img_path, model_name):
             generator = load_rrdb(weight_path, scale=2) # Directly use default way now
             
         else:
-            raise gr.Error(error)
+            raise gr.Error("We don't support such Model")
         
         generator = generator.to(dtype=weight_dtype)
 
 
         # In default, we will automatically use crop to match 4x size
         super_resolved_img = super_resolve_img(generator, img_path, output_path=None, weight_dtype=weight_dtype, crop_for_4x=True)
-        save_image(super_resolved_img, "SR_result.png")
-        outputs = cv2.imread("SR_result.png")
+        store_name = str(time.time()) + ".png"
+        save_image(super_resolved_img, store_name)
+        outputs = cv2.imread(store_name)
         outputs = cv2.cvtColor(outputs, cv2.COLOR_RGB2BGR)
         
         return outputs
@@ -70,14 +72,16 @@ if __name__ == '__main__':
     
     MARKDOWN = \
     """
-    ## APISR: Anime Production Inspired Real-World Anime Super-Resolution (CVPR 2024)
-
+    ## <p style='text-align: center'> APISR: Anime Production Inspired Real-World Anime Super-Resolution (CVPR 2024) </p>
+    
     [GitHub](https://github.com/Kiteretsu77/APISR) | [Paper](https://arxiv.org/abs/2403.01598)
 
-    If APISR is helpful for you, please help star the GitHub Repo. Thanks!
+    APISR aims at restoring and enhancing low-quality low-resolution anime images and video sources with various degradations from real-world scenarios.
+
+    If APISR is helpful, please help star the GitHub Repo. Thanks! 
     """
 
-    block = gr.Blocks().queue()
+    block = gr.Blocks().queue(max_size=10)
     with block:
         with gr.Row():
             gr.Markdown(MARKDOWN)
