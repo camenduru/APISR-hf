@@ -4,7 +4,6 @@
 import argparse
 import os, sys, cv2, shutil, warnings
 import torch
-import gradio as gr
 from torchvision.transforms import ToTensor
 from torchvision.utils import save_image
 warnings.simplefilter("default")
@@ -43,7 +42,7 @@ def super_resolve_img(generator, input_path, output_path=None, weight_dtype=torc
     # Check if the size is out of the boundary
     h, w, c = img_lr.shape
     if h*w > 720*1280:
-        raise gr.Error("The input image size is too large. The largest area we support is 720x1280=921600 pixel!")
+        print("The input image size is too large. The largest area we support is 720x1280=921600 pixel!")
     
 
     # Transform to tensor
